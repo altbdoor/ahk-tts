@@ -32,14 +32,14 @@ It will also create a file called `ahktts_settings.ini`. Here is where it stores
 
 ### Why
 
-My friends and I are currently using [Discord](https://discordapp.com/) for voice chat during games. It is rather inconvenient for me to use the mic, so I wanted to use a soundboard or something similar. But I ended up writing this out with a [virtual cable](http://vb-audio.pagesperso-orange.fr/Cable/index.htm). Here's a simplified view of how things work.
+My friends and I are currently using [Discord](https://discordapp.com/) for voice chat during games. It is rather inconvenient for me to use the mic, so I wanted to use a soundboard or something similar. But I ended up writing this out, and coupled it with a [virtual cable](http://vb-audio.pagesperso-orange.fr/Cable/index.htm). Here's a simplified view of how things work.
 
 ```
-[ ahk-tts ]         // here is where you type the text, then it sends it to
-  |                 // MS Speech API
+[ ahk-tts ]         // here is where you type the text, then it sends the text
+  |                 // to MS Speech API
   v
 [ MS Speech API ]   // which will convert it into speech audio, and directed
-  |                 // into the virtual speaker, as set in ahk-tts
+  |                 // into the virtual speaker (Output), as set in ahk-tts
   v
 [ CABLE Input ]     // the virtual speaker will just pass the audio into the
   |                 // virtual mic

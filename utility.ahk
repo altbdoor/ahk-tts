@@ -38,3 +38,10 @@ ReadSettings(Key, DefaultValue) {
     
     Return Value
 }
+
+GetPresetIntegerFromText(PresetText) {
+    PresetIndex := RegExReplace(PresetText, "[^\d]", "")
+    PresetIndex := Mod(PresetIndex, 10)
+    
+    Return PresetIndex
+}

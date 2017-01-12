@@ -5,6 +5,7 @@
 #Include utility.ahk
 
 SettingsFile := A_ScriptDir . "/ahktts_settings.ini"
+AudioTextHistory := []
 
 GUI:
     Gui, Font, s10, Segoe UI
@@ -28,7 +29,8 @@ GUI:
     Gui, Add, Slider, w115 h24 x275 y70 vAudioVolume Range0-100 TickInterval10, 100
     
     Gui, Add, Text, w70 h24x x10 y104, Text:
-    Gui, Add, Edit, Text w310 h24 x80 y100 vAudioText, Hello world
+    Gui, Add, ComboBox, w310 h24 x80 y100 r5 vAudioText, Hello world
+    GuiControl, Choose, AudioText, 1
     
     Gui, Add, Button, Default Center w380 h30 x10 y134 gExecuteSubmit, Speak
     
@@ -49,6 +51,7 @@ GUI:
     Temp := ""
     Gui, Show, Center w400, AHK Text to Speech
     
+    GuiControl, Focus, AudioText
     BindPresets()
     
     OnMessage(0x200, "WindowMouseMove")
@@ -59,57 +62,67 @@ Return
 ExecuteSubmit:
     Gui, Submit, NoHide
     
-    SetCurrentAudioOutput(AudioOutput)
-    SetCurrentAudioVoice(AudioVoice)
-    SetCurrentAudioRate(AudioRate)
-    SetCurrentAudioVolume(AudioVolume)
-    
-    If (WinActive("AHK Text to Speech")) {
+    If (AudioText != "") {
+        SetCurrentAudioOutput(AudioOutput)
+        SetCurrentAudioVoice(AudioVoice)
+        SetCurrentAudioRate(AudioRate)
+        SetCurrentAudioVolume(AudioVolume)
+        
+        TTSSpeak(AudioText)
+        
+        If (AudioText != AudioTextHistory[1]) {
+            AudioTextHistory.InsertAt(1, AudioText)
+            
+            AudioTextHistoryLength := AudioTextHistory.Length() - 20
+            Loop, %AudioTextHistoryLength% {
+                AudioTextHistory.Pop()
+            }
+            
+            TempAudioTextList := JoinArray(AudioTextHistory, "|")
+            GuiControl, , AudioText, % "|" . TempAudioTextList
+        }
+        
         GuiControl, Focus, AudioText
         Send, ^a
     }
-    
-    TTSSpeak(AudioText)
 Return
 
 
 ExecuteSavePreset:
     Gui, Submit, NoHide
     
-    CurrentPreset := A_GuiControl
-    CurrentPresetIndex := StrReplace(CurrentPreset, "Preset ", "")
-    
+    CurrentPresetIndex := GetPresetIntegerFromText(A_GuiControl)
     WriteSettings(CurrentPresetIndex, AudioText)
 Return
 
 
 ExecutePlayPreset:
-    CurrentPreset := A_ThisHotkey
-    CurrentPresetIndex := RegExReplace(CurrentPreset, "[^\d]", "")
-    
+    CurrentPresetIndex := GetPresetIntegerFromText(A_ThisHotkey)
     PresetAudioText := ReadSettings(CurrentPresetIndex, "")
     
     If (PresetAudioText != "") {
-        GuiControl, , AudioText, % PresetAudioText
-        GoSub, ExecuteSubmit
+        Gui, Submit, NoHide
+        
+        SetCurrentAudioOutput(AudioOutput)
+        SetCurrentAudioVoice(AudioVoice)
+        SetCurrentAudioRate(AudioRate)
+        SetCurrentAudioVolume(AudioVolume)
+        
+        TTSSpeak(PresetAudioText)
     }
 Return
 
 
 WindowMouseMove(wparam, lparam, msg, hwnd) {
-    If (A_GuiControl) {
-        If (RegExMatch(A_GuiControl, "^Preset \d$")) {
-            CurrentPreset := A_GuiControl
-            CurrentPresetIndex := StrReplace(CurrentPreset, "Preset ", "")
-            
-            PresetAudioText := ReadSettings(CurrentPresetIndex, "")
-            
-            If (PresetAudioText == "") {
-                PresetAudioText := "[No text assigned]"
-            }
-            
-            SB_SetText(A_GuiControl . ": " . PresetAudioText)
+    If (A_GuiControl && RegExMatch(A_GuiControl, "^Preset \d+$")) {
+        CurrentPresetIndex := GetPresetIntegerFromText(A_GuiControl)
+        PresetAudioText := ReadSettings(CurrentPresetIndex, "")
+        
+        If (PresetAudioText == "") {
+            PresetAudioText := "[No text assigned]"
         }
+        
+        SB_SetText(A_GuiControl . ": " . PresetAudioText)
     }
 }
 
