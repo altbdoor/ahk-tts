@@ -22,29 +22,32 @@ GUI:
     GuiControl, , AudioVoice, % Temp["Choices"]
     GuiControl, Choose, AudioVoice, % Temp["Index"]
     
-    Gui, Add, Text, w70 h24 x10 y74, Rate:
-    Gui, Add, Slider, w115 h24 x80 y70 vAudioRate Range-10-10 TickInterval2, -2
+    Gui, Add, Text, w70 h24 x10 y74, Volume:
+    Gui, Add, Slider, w310 h24 x80 y70 vAudioVolume Range0-100 TickInterval10, 100
     
-    Gui, Add, Text, w70 h24 x205 y74, Volume:
-    Gui, Add, Slider, w115 h24 x275 y70 vAudioVolume Range0-100 TickInterval10, 100
+    Gui, Add, Text, w70 h24 x10 y104, Rate:
+    Gui, Add, Slider, w115 h24 x80 y100 vAudioRate Range-10-10 TickInterval2, -2
     
-    Gui, Add, Text, w70 h24x x10 y104, Text:
-    Gui, Add, ComboBox, w310 h24 x80 y100 r5 vAudioText, Hello world
+    Gui, Add, Text, w70 h24 x205 y104, Pitch:
+    Gui, Add, Slider, w115 h24 x275 y100 vAudioPitch Range-10-10 TickInterval2, 0
+    
+    Gui, Add, Text, w70 h24 x10 y134, Text:
+    Gui, Add, ComboBox, w310 h24 x80 y130 r5 vAudioText, Hello world
     GuiControl, Choose, AudioText, 1
     
-    Gui, Add, Button, Default Center w380 h30 x10 y134 gExecuteSubmit, Speak
+    Gui, Add, Button, Default Center w380 h30 x10 y164 gExecuteSubmit, Speak
     
-    Gui, Add, Button, Center w76 h30  x10 y180 gExecuteSavePreset, Preset 1
-    Gui, Add, Button, Center w76 h30  x86 y180 gExecuteSavePreset, Preset 2
-    Gui, Add, Button, Center w76 h30 x162 y180 gExecuteSavePreset, Preset 3
-    Gui, Add, Button, Center w76 h30 x238 y180 gExecuteSavePreset, Preset 4
-    Gui, Add, Button, Center w76 h30 x314 y180 gExecuteSavePreset, Preset 5
+    Gui, Add, Button, Center w76 h30  x10 y210 gExecuteSavePreset, Preset 1
+    Gui, Add, Button, Center w76 h30  x86 y210 gExecuteSavePreset, Preset 2
+    Gui, Add, Button, Center w76 h30 x162 y210 gExecuteSavePreset, Preset 3
+    Gui, Add, Button, Center w76 h30 x238 y210 gExecuteSavePreset, Preset 4
+    Gui, Add, Button, Center w76 h30 x314 y210 gExecuteSavePreset, Preset 5
     
-    Gui, Add, Button, Center w76 h30  x10 y210 gExecuteSavePreset, Preset 6
-    Gui, Add, Button, Center w76 h30  x86 y210 gExecuteSavePreset, Preset 7
-    Gui, Add, Button, Center w76 h30 x162 y210 gExecuteSavePreset, Preset 8
-    Gui, Add, Button, Center w76 h30 x238 y210 gExecuteSavePreset, Preset 9
-    Gui, Add, Button, Center w76 h30 x314 y210 gExecuteSavePreset, Preset 10
+    Gui, Add, Button, Center w76 h30  x10 y240 gExecuteSavePreset, Preset 6
+    Gui, Add, Button, Center w76 h30  x86 y240 gExecuteSavePreset, Preset 7
+    Gui, Add, Button, Center w76 h30 x162 y240 gExecuteSavePreset, Preset 8
+    Gui, Add, Button, Center w76 h30 x238 y240 gExecuteSavePreset, Preset 9
+    Gui, Add, Button, Center w76 h30 x314 y240 gExecuteSavePreset, Preset 10
     
     Gui, Add, StatusBar, , Ready
     
@@ -68,7 +71,7 @@ ExecuteSubmit:
         SetCurrentAudioRate(AudioRate)
         SetCurrentAudioVolume(AudioVolume)
         
-        TTSSpeak(AudioText)
+        TTSSpeak(AudioText, AudioPitch)
         
         If (AudioText != AudioTextHistory[1]) {
             AudioTextHistory.InsertAt(1, AudioText)
@@ -92,23 +95,31 @@ ExecuteSavePreset:
     Gui, Submit, NoHide
     
     CurrentPresetIndex := GetPresetIntegerFromText(A_GuiControl)
-    WriteSettings(CurrentPresetIndex, AudioText)
+    WriteSettings("Rate" . CurrentPresetIndex, AudioRate)
+    WriteSettings("Volume" . CurrentPresetIndex, AudioVolume)
+    WriteSettings("Pitch" . CurrentPresetIndex, AudioPitch)
+    WriteSettings("Text" . CurrentPresetIndex, AudioText)
 Return
 
 
 ExecutePlayPreset:
     CurrentPresetIndex := GetPresetIntegerFromText(A_ThisHotkey)
-    PresetAudioText := ReadSettings(CurrentPresetIndex, "")
+    PresetAudioText := ReadSettings("Text" . CurrentPresetIndex, "")
     
     If (PresetAudioText != "") {
+        PresetAudioRate := ReadSettings("Rate" . CurrentPresetIndex, -2)
+        PresetAudioVolume := ReadSettings("Volume" . CurrentPresetIndex, 100)
+        PresetAudioPitch := ReadSettings("Pitch" . CurrentPresetIndex, 0)
+        
         Gui, Submit, NoHide
         
         SetCurrentAudioOutput(AudioOutput)
         SetCurrentAudioVoice(AudioVoice)
-        SetCurrentAudioRate(AudioRate)
-        SetCurrentAudioVolume(AudioVolume)
         
-        TTSSpeak(PresetAudioText)
+        SetCurrentAudioRate(PresetAudioRate)
+        SetCurrentAudioVolume(PresetAudioVolume)
+        
+        TTSSpeak(PresetAudioText, PresetAudioPitch)
     }
 Return
 
@@ -116,7 +127,7 @@ Return
 WindowMouseMove(wparam, lparam, msg, hwnd) {
     If (A_GuiControl && RegExMatch(A_GuiControl, "^Preset \d+$")) {
         CurrentPresetIndex := GetPresetIntegerFromText(A_GuiControl)
-        PresetAudioText := ReadSettings(CurrentPresetIndex, "")
+        PresetAudioText := ReadSettings("Text" . CurrentPresetIndex, "")
         
         If (PresetAudioText == "") {
             PresetAudioText := "[No text assigned]"

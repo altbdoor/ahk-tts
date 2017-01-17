@@ -74,8 +74,7 @@ SetCurrentAudioVolume(AudioVolume) {
     VoiceInstance.Volume := AudioVolume
 }
 
-TTSSpeak(TextContent) {
+TTSSpeak(TextContent, AudioPitch) {
     global VoiceInstance
-    VoiceInstance.Speak("", 0x1|0x2)
-    VoiceInstance.Speak(TextContent, 0x1)
+    VoiceInstance.Speak("<pitch absmiddle='" . AudioPitch . "'/>" . TextContent, 0x1|0x2)
 }

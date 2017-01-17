@@ -11,14 +11,15 @@ This is definitely not the first project to do this. Do check out the other simi
 
 ### Usage
 
-![capture](https://cloud.githubusercontent.com/assets/3540471/21844175/9ec3e452-d828-11e6-89be-690d06ae64b0.png)
+![capture](https://cloud.githubusercontent.com/assets/3540471/22014481/e7653f94-dcd8-11e6-863a-b55c083cc828.png)
 
 | Item   | Description |
 | ------ | --- |
 | Output | The output channel for the speech. If you have more than one speakers (or output), it can be a tad useful. |
 | Voice  | The voice for the text. The choices available depends on your operating system. |
-| Rate   | The reading speed for the text. |
 | Volume | The loudness for the speech. |
+| Rate   | The reading speed for the text. |
+| Pitch  | The pitch for the speech. |
 | Text   | The text to convert into speech. |
 | Speak  | The button to start converting the text to speech. Alternatively, you can press `ENTER` on the Text field. |
 | Preset 1 - 10 | The button to save the current text into a preset, which can be converted into speech later with a hotkey. |
