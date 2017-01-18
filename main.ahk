@@ -1,24 +1,30 @@
+#NoEnv
+SendMode Input
+SetWorkingDir %A_ScriptDir%
+
 #SingleInstance force
 #NoTrayIcon
 
 #Include tts.ahk
 #Include utility.ahk
 
+AppVersion := 1.3
 SettingsFile := A_ScriptDir . "/ahktts_settings.ini"
 AudioTextHistory := []
+TTSInstance := new TTS()
 
 GUI:
     Gui, Font, s10, Segoe UI
     
     Gui, Add, Text, w70 h24 x10 y14, Output:
     Gui, Add, DropDownList, w310 x80 y10 vAudioOutput
-    Temp := GetComboBoxChoice(GetAudioOutputs(), GetCurrentAudioOutput())
+    Temp := GetComboBoxChoice(TTSInstance.GetAudioOutputs(), TTSInstance.GetCurrentAudioOutput())
     GuiControl, , AudioOutput, % Temp["Choices"]
     GuiControl, Choose, AudioOutput, % Temp["Index"]
     
     Gui, Add, Text, w70 h24 x10 y44, Voice:
     Gui, Add, DropDownList, w310 x80 y40 vAudioVoice
-    Temp := GetComboBoxChoice(GetAudioVoices(), GetCurrentAudioVoice())
+    Temp := GetComboBoxChoice(TTSInstance.GetAudioVoices(), TTSInstance.GetCurrentAudioVoice())
     GuiControl, , AudioVoice, % Temp["Choices"]
     GuiControl, Choose, AudioVoice, % Temp["Index"]
     
@@ -47,12 +53,12 @@ GUI:
     Gui, Add, Button, Center w76 h30  x86 y240 gExecuteSavePreset, Preset 7
     Gui, Add, Button, Center w76 h30 x162 y240 gExecuteSavePreset, Preset 8
     Gui, Add, Button, Center w76 h30 x238 y240 gExecuteSavePreset, Preset 9
-    Gui, Add, Button, Center w76 h30 x314 y240 gExecuteSavePreset, Preset 10
+    Gui, Add, Button, Center w76 h30 x314 y240 gExecuteSavePreset, Preset 0
     
     Gui, Add, StatusBar, , Ready
     
     Temp := ""
-    Gui, Show, Center w400, AHK Text to Speech
+    Gui, Show, Center w400, % "AHK Text to Speech v" . AppVersion
     
     GuiControl, Focus, AudioText
     BindPresets()
@@ -66,12 +72,12 @@ ExecuteSubmit:
     Gui, Submit, NoHide
     
     If (AudioText != "") {
-        SetCurrentAudioOutput(AudioOutput)
-        SetCurrentAudioVoice(AudioVoice)
-        SetCurrentAudioRate(AudioRate)
-        SetCurrentAudioVolume(AudioVolume)
+        TTSInstance.SetCurrentAudioOutput(AudioOutput)
+        TTSInstance.SetCurrentAudioVoice(AudioVoice)
+        TTSInstance.SetCurrentAudioRate(AudioRate)
+        TTSInstance.SetCurrentAudioVolume(AudioVolume)
         
-        TTSSpeak(AudioText, AudioPitch)
+        TTSInstance.Speak(AudioText, AudioPitch)
         
         If (AudioText != AudioTextHistory[1]) {
             AudioTextHistory.InsertAt(1, AudioText)
@@ -113,13 +119,12 @@ ExecutePlayPreset:
         
         Gui, Submit, NoHide
         
-        SetCurrentAudioOutput(AudioOutput)
-        SetCurrentAudioVoice(AudioVoice)
+        TTSInstance.SetCurrentAudioOutput(AudioOutput)
+        TTSInstance.SetCurrentAudioVoice(AudioVoice)
+        TTSInstance.SetCurrentAudioRate(PresetAudioRate)
+        TTSInstance.SetCurrentAudioVolume(PresetAudioVolume)
         
-        SetCurrentAudioRate(PresetAudioRate)
-        SetCurrentAudioVolume(PresetAudioVolume)
-        
-        TTSSpeak(PresetAudioText, PresetAudioPitch)
+        TTSInstance.Speak(PresetAudioText, PresetAudioPitch)
     }
 Return
 

@@ -11,7 +11,7 @@ This is definitely not the first project to do this. Do check out the other simi
 
 ### Usage
 
-![capture](https://cloud.githubusercontent.com/assets/3540471/22014481/e7653f94-dcd8-11e6-863a-b55c083cc828.png)
+![capture](https://cloud.githubusercontent.com/assets/3540471/22048860/bc0dd828-dd6a-11e6-9d23-c4ea4ed486d1.png)
 
 | Item   | Description |
 | ------ | --- |
@@ -20,15 +20,28 @@ This is definitely not the first project to do this. Do check out the other simi
 | Volume | The loudness for the speech. |
 | Rate   | The reading speed for the text. |
 | Pitch  | The pitch for the speech. |
-| Text   | The text to convert into speech. |
+| Text   | The text to convert into speech, or the path to a `.wav` file. |
 | Speak  | The button to start converting the text to speech. Alternatively, you can press `ENTER` on the Text field. |
-| Preset 1 - 10 | The button to save the current text into a preset, which can be converted into speech later with a hotkey. |
+| Preset 1 - 0 | The button to save the current text into a preset, which can be converted into speech later with a hotkey. |
 
-Here is where it gets *clunky*. To allow dynamic binding of hotkey (that is, allow user to change what keypresses to trigger the presets) is rather complex, and I chose to not do it.
+Here is where it gets *clunky*. To allow dynamic binding of hotkey (that is, allow user to change what keypresses to trigger the presets) is rather complex, and I chose not do it (sorry).
 
-To bring up the respective presets, you hold `CTRL` and press the numbers `1` to `0`. The hotkeys are bound globally, so it might interrupt one or more of your stuff. If you find the need to change it, please edit the source and recompile.
+To save the current Text as a preset, click on one of the Preset buttons. To play the preset speech, hold `CTRL` and press the number (`1` to `0`). Example, type in "Hello World", press "Preset 2" button to save it, and press `CTRL + 2` to "speech it out".
+
+The hotkeys are bound globally, so it might interrupt your usual activity. If you find the need to change it, please edit the source and recompile. Look for the `BindPresets` method in `main.ahk`.
 
 It will also create a file called `ahktts_settings.ini`. Here is where it stores the presets.
+
+**New in v1.3!** I found out that the [Microsoft Speech API is capable of playing `.wav` files](https://msdn.microsoft.com/en-us/library/jj127898.aspx#Playback). And can be <strike>ab</strike>used to double as a soundboard. Below are the requirements for the `.wav` file, [as listed by Microsoft](https://msdn.microsoft.com/en-us/library/hh378414.aspx).
+
+> The audio element supports WMA files and .WAV files containing RIFF headers and encoded with the following parameters.
+> 
+> - **Format**, PCM, a-law, u-law
+> - **Bit**-depth, 8 bits, 16 bits
+> - **Channels**, Mono only
+> - **Sampling** Rate, All sampling rates supported.
+
+So, the Text field now accepts a path to your system's `.wav` files. For convenience, I recommend placing the audio files into a `wav` folder in the same level as the `ahk_tts.exe`, and specify the path as "wav\loud_applause.wav" in Text.
 
 
 ### Why
