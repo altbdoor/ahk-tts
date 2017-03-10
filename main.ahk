@@ -8,7 +8,8 @@ SetWorkingDir %A_ScriptDir%
 #Include tts.ahk
 #Include utility.ahk
 
-AppVersion := 1.3
+AppVersion := 1.4
+AppTitle := "AHK Text to Speech v" . AppVersion
 SettingsFile := A_ScriptDir . "/ahktts_settings.ini"
 AudioTextHistory := []
 TTSInstance := new TTS()
@@ -58,7 +59,7 @@ GUI:
     Gui, Add, StatusBar, , Ready
     
     Temp := ""
-    Gui, Show, Center w400, % "AHK Text to Speech v" . AppVersion
+    Gui, Show, Center w400, % AppTitle
     
     GuiControl, Focus, AudioText
     BindPresets()
@@ -141,6 +142,11 @@ WindowMouseMove(wparam, lparam, msg, hwnd) {
         SB_SetText(A_GuiControl . ": " . PresetAudioText)
     }
 }
+
+
+#If WinActive(AppTitle)
+^BS:: Send, ^+{left}{delete}
+#If
 
 
 BindPresets() {
