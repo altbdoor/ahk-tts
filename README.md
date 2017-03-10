@@ -37,9 +37,9 @@ It will also create a file called `ahktts_settings.ini`. Here is where it stores
 > The audio element supports WMA files and .WAV files containing RIFF headers and encoded with the following parameters.
 > 
 > - **Format**, PCM, a-law, u-law
-> - **Bit**-depth, 8 bits, 16 bits
+> - **Bit-depth**, 8 bits, 16 bits
 > - **Channels**, Mono only
-> - **Sampling** Rate, All sampling rates supported.
+> - **Sampling Rate**, All sampling rates supported.
 
 So, the Text field now accepts a path to your system's `.wav` files. For convenience, I recommend placing the audio files into a `wav` folder in the same level as the `ahk_tts.exe`, and specify the path as "wav\loud_applause.wav" in Text.
 
