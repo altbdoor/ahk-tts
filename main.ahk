@@ -10,7 +10,7 @@ SetWorkingDir %A_ScriptDir%
 
 AppVersion := 1.4
 AppTitle := "AHK Text to Speech v" . AppVersion
-SettingsFile := A_ScriptDir . "/ahktts_settings.ini"
+SettingsFile := A_ScriptDir . "/settings.ini"
 AudioTextHistory := []
 TTSInstance := new TTS()
 
@@ -102,21 +102,22 @@ ExecuteSavePreset:
     Gui, Submit, NoHide
     
     CurrentPresetIndex := GetPresetIntegerFromText(A_GuiControl)
-    WriteSettings("Rate" . CurrentPresetIndex, AudioRate)
-    WriteSettings("Volume" . CurrentPresetIndex, AudioVolume)
-    WriteSettings("Pitch" . CurrentPresetIndex, AudioPitch)
-    WriteSettings("Text" . CurrentPresetIndex, AudioText)
+    WriteSettings("presetAudio", "Rate" . CurrentPresetIndex, AudioRate)
+    WriteSettings("presetAudio", "Volume" . CurrentPresetIndex, AudioVolume)
+    WriteSettings("presetAudio", "Pitch" . CurrentPresetIndex, AudioPitch)
+    WriteSettings("presetAudio", "Text" . CurrentPresetIndex, AudioText)
+    WindowMouseMove()
 Return
 
 
 ExecutePlayPreset:
     CurrentPresetIndex := GetPresetIntegerFromText(A_ThisHotkey)
-    PresetAudioText := ReadSettings("Text" . CurrentPresetIndex, "")
+    PresetAudioText := ReadSettings("presetAudio", "Text" . CurrentPresetIndex, "")
     
     If (PresetAudioText != "") {
-        PresetAudioRate := ReadSettings("Rate" . CurrentPresetIndex, -2)
-        PresetAudioVolume := ReadSettings("Volume" . CurrentPresetIndex, 100)
-        PresetAudioPitch := ReadSettings("Pitch" . CurrentPresetIndex, 0)
+        PresetAudioRate := ReadSettings("presetAudio", "Rate" . CurrentPresetIndex, -2)
+        PresetAudioVolume := ReadSettings("presetAudio", "Volume" . CurrentPresetIndex, 100)
+        PresetAudioPitch := ReadSettings("presetAudio", "Pitch" . CurrentPresetIndex, 0)
         
         Gui, Submit, NoHide
         
@@ -130,10 +131,11 @@ ExecutePlayPreset:
 Return
 
 
-WindowMouseMove(wparam, lparam, msg, hwnd) {
+; WindowMouseMove(wparam, lparam, msg, hwnd)
+WindowMouseMove() {
     If (A_GuiControl && RegExMatch(A_GuiControl, "^Preset \d+$")) {
         CurrentPresetIndex := GetPresetIntegerFromText(A_GuiControl)
-        PresetAudioText := ReadSettings("Text" . CurrentPresetIndex, "")
+        PresetAudioText := ReadSettings("presetAudio", "Text" . CurrentPresetIndex, "")
         
         If (PresetAudioText == "") {
             PresetAudioText := "[No text assigned]"

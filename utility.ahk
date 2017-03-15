@@ -20,20 +20,20 @@ GetComboBoxChoice(TheList, TheCurrent) {
     Return {"Index": TheCurrent, "Choices": TheList}
 }
 
-WriteSettings(Key, Value) {
+WriteSettings(Section, Key, Value) {
     global SettingsFile
-    IniWrite, %Value%, %SettingsFile%, preset, %Key%
+    IniWrite, %Value%, %SettingsFile%, %Section%, %Key%
     Return
 }
 
-ReadSettings(Key, DefaultValue) {
+ReadSettings(Section, Key, DefaultValue) {
     global SettingsFile
     
     If (DefaultValue == "") {
-        IniRead, Value, %SettingsFile%, preset, %Key%, %A_Space%
+        IniRead, Value, %SettingsFile%, %Section%, %Key%, %A_Space%
     }
     Else {
-        IniRead, Value, %SettingsFile%, preset, %Key%, %DefaultValue%
+        IniRead, Value, %SettingsFile%, %Section%, %Key%, %DefaultValue%
     }
     
     Return Value
