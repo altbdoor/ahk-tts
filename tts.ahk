@@ -22,14 +22,17 @@ class TTS {
     }
     
     SetCurrentAudioOutput(AudioOutputDescription) {
-        Loop % this.Instance.GetAudioOutputs.Count {
-            AudioOutputObject := this.Instance.GetAudioOutputs.Item(A_Index - 1)
-            Description := AudioOutputObject.GetDescription
-            If (Description == AudioOutputDescription) {
-                this.Instance.AudioOutput := AudioOutputObject
-                Break
+        If (this.GetCurrentAudioOutput() != AudioOutputDescription) {
+            Loop % this.Instance.GetAudioOutputs.Count {
+                AudioOutputObject := this.Instance.GetAudioOutputs.Item(A_Index - 1)
+                Description := AudioOutputObject.GetDescription
+                If (Description == AudioOutputDescription) {
+                    this.Instance.AudioOutput := AudioOutputObject
+                    Break
+                }
             }
         }
+        
     }
     
     GetAudioVoices() {
@@ -47,39 +50,48 @@ class TTS {
     }
     
     SetCurrentAudioVoice(AudioVoiceDescription) {
-        Loop % this.Instance.GetVoices.Count {
-            VoiceObject := this.Instance.GetVoices.Item(A_Index - 1)
-            Description := VoiceObject.GetDescription
-            If (Description == AudioVoiceDescription) {
-                this.Instance.Voice := VoiceObject
-                Break
+        If (this.GetCurrentAudioVoice() != AudioVoiceDescription) {
+            Loop % this.Instance.GetVoices.Count {
+                VoiceObject := this.Instance.GetVoices.Item(A_Index - 1)
+                Description := VoiceObject.GetDescription
+                If (Description == AudioVoiceDescription) {
+                    this.Instance.Voice := VoiceObject
+                    Break
+                }
             }
         }
+        
     }
     
-    SetCurrentAudioRate(AudioRate) {
-        this.Instance.Rate := AudioRate
-    }
+    ; SetCurrentAudioRate(AudioRate) {
+    ;     this.Instance.Rate := AudioRate
+    ; }
     
-    SetCurrentAudioVolume(AudioVolume) {
-        this.Instance.Volume := AudioVolume
-    }
+    ; SetCurrentAudioVolume(AudioVolume) {
+    ;     this.Instance.Volume := AudioVolume
+    ; }
     
-    Speak(TextContent, AudioPitch) {
+    Speak(TextContent, AudioRate, AudioVolume, AudioPitch) {
         this.Instance.Speak("", 0x1|0x2)
         
         If (FileExist(TextContent) && RegExMatch(TextContent, "i)\.wav$")) {
-            XmlContent := "<?xml version='1.0' encoding='ISO-8859-1'?>"
-            XmlContent := XmlContent . "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>"
-            XmlContent := XmlContent . "<audio src='" . TextContent . "'></audio>"
-            XmlContent := XmlContent . "</speak>"
-            
-            TextContent := XmlContent
+            TextContent := "<?xml version='1.0' encoding='ISO-8859-1'?>"
+                . "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>"
+                . "<audio src='" . TextContent . "'></audio>"
+                . "</speak>"
         }
         Else {
-            TextContent := "<pitch absmiddle='" . AudioPitch . "'/>" . TextContent
+            TextContent := "<rate absspeed='" . AudioRate . "'/>"
+                . "<volume level='" . AudioVolume . "'/>"
+                . "<pitch absmiddle='" . AudioPitch . "'/>"
+                . TextContent
         }
         
-        this.Instance.Speak(TextContent, 0x1|0x2)
+        Try {
+            this.Instance.Speak(TextContent, 0x1|0x2)
+        }
+        Catch {
+            this.Instance.Speak("error parsing text", 0x1|0x2)
+        }
     }
 }

@@ -5,10 +5,13 @@ SetWorkingDir %A_ScriptDir%
 #SingleInstance force
 #NoTrayIcon
 
+#KeyHistory 0
+ListLines Off
+
 #Include tts.ahk
 #Include utility.ahk
 
-AppVersion := 1.4
+AppVersion := 1.5
 AppTitle := "AHK Text to Speech v" . AppVersion
 SettingsFile := A_ScriptDir . "/settings.ini"
 AudioTextHistory := []
@@ -62,7 +65,7 @@ GUI:
     Gui, Show, Center w400, % AppTitle
     
     GuiControl, Focus, AudioText
-    BindPresets()
+    BindHotkeys()
     
     OnMessage(0x200, "WindowMouseMove")
 Return
@@ -75,10 +78,10 @@ ExecuteSubmit:
     If (AudioText != "") {
         TTSInstance.SetCurrentAudioOutput(AudioOutput)
         TTSInstance.SetCurrentAudioVoice(AudioVoice)
-        TTSInstance.SetCurrentAudioRate(AudioRate)
-        TTSInstance.SetCurrentAudioVolume(AudioVolume)
+        ; TTSInstance.SetCurrentAudioRate(AudioRate)
+        ; TTSInstance.SetCurrentAudioVolume(AudioVolume)
         
-        TTSInstance.Speak(AudioText, AudioPitch)
+        TTSInstance.Speak(AudioText, AudioRate, AudioVolume, AudioPitch)
         
         If (AudioText != AudioTextHistory[1]) {
             AudioTextHistory.InsertAt(1, AudioText)
@@ -111,10 +114,10 @@ Return
 
 
 ExecutePlayPreset:
-    CurrentPresetIndex := GetPresetIntegerFromText(A_ThisHotkey)
+    CurrentPresetIndex := GetPresetIntegerFromHotkey(A_ThisHotkey)
     PresetAudioText := ReadSettings("presetAudio", "Text" . CurrentPresetIndex, "")
     
-    If (PresetAudioText != "") {
+    If (CurrentPresetIndex != -1 && PresetAudioText != "") {
         PresetAudioRate := ReadSettings("presetAudio", "Rate" . CurrentPresetIndex, -2)
         PresetAudioVolume := ReadSettings("presetAudio", "Volume" . CurrentPresetIndex, 100)
         PresetAudioPitch := ReadSettings("presetAudio", "Pitch" . CurrentPresetIndex, 0)
@@ -123,10 +126,10 @@ ExecutePlayPreset:
         
         TTSInstance.SetCurrentAudioOutput(AudioOutput)
         TTSInstance.SetCurrentAudioVoice(AudioVoice)
-        TTSInstance.SetCurrentAudioRate(PresetAudioRate)
-        TTSInstance.SetCurrentAudioVolume(PresetAudioVolume)
+        ; TTSInstance.SetCurrentAudioRate(PresetAudioRate)
+        ; TTSInstance.SetCurrentAudioVolume(PresetAudioVolume)
         
-        TTSInstance.Speak(PresetAudioText, PresetAudioPitch)
+        TTSInstance.Speak(PresetAudioText, PresetAudioRate, PresetAudioVolume, PresetAudioPitch)
     }
 Return
 
@@ -146,18 +149,22 @@ WindowMouseMove() {
 }
 
 
+BindHotkeys() {
+    Loop, 10 {
+        ReIndex := Mod(A_Index, 10)
+        HotkeyAssign := ReadSettings("presetHotkey", "Hotkey" . ReIndex, "")
+        
+        If (HotkeyAssign != "") {
+            Hotkey, %HotKeyAssign%, ExecutePlayPreset
+        }
+    }
+    
+}
+
+
 #If WinActive(AppTitle)
 ^BS:: Send, ^+{left}{delete}
 #If
-
-
-BindPresets() {
-    Loop, 10 {
-        ReIndex := Mod(A_Index, 10)
-        HotKeyAssign := "Ctrl & " . ReIndex
-        Hotkey, %HotKeyAssign%, ExecutePlayPreset
-    }
-}
 
 
 GuiClose:

@@ -41,7 +41,26 @@ ReadSettings(Section, Key, DefaultValue) {
 
 GetPresetIntegerFromText(PresetText) {
     PresetIndex := RegExReplace(PresetText, "[^\d]", "")
-    PresetIndex := Mod(PresetIndex, 10)
+    ; PresetIndex := Mod(PresetIndex, 10)
     
     Return PresetIndex
+}
+
+GetPresetIntegerFromHotkey(HotkeyText) {
+    ResultIndex := -1
+    
+    Loop, 10 {
+        ReIndex := Mod(A_Index, 10)
+        HotkeyAssign := ReadSettings("presetHotkey", "Hotkey" . ReIndex, "")
+        HotkeyAssign := StrReplace(HotkeyAssign, " ", "")
+        
+        HotkeyText := RegExReplace(HotkeyText, " ", "")
+        
+        If (HotkeyText == HotkeyAssign) {
+            ResultIndex := ReIndex
+            Break
+        }
+    }
+    
+    Return ResultIndex
 }
