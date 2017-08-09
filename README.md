@@ -24,12 +24,14 @@ This is definitely not the first project to do this. Do check out the other simi
 | Speak  | The button to convert the text to speech, or play the `.wav` file. Alternatively, you can press `ENTER` on the Text field. |
 | Preset 1 - 0 | The button to save the current text, or path to `.wav` file into a preset, which can be called later with a hotkey. |
 
+To configure the hotkeys, open up the included `settings.ini` file and edit the keys for `Hotkey1` to `Hotkey0`. The hotkey combination needs to follow [AHK's keylist](https://autohotkey.com/docs/KeyList.htm). As an example, `Ctrl` and `1` is defined by `Ctrl & 1`. The application needs to be restarted after configuring the hotkeys.
+
 
 ### Limitations
 
-- To allow dynamic binding of hotkey (that is, allow user to change what keypresses to trigger the presets) is rather complex, and I chose not do it (sorry).
+- To allow dynamic binding of hotkey (that is, allow user to change what keypresses to trigger the presets via GUI) is rather complex, and I chose not do it (sorry). But you can do it on the `settings.ini`.
 
-- The hotkeys are bound globally, so it might interrupt your usual activity. If you find the need to change it, please edit the source and recompile. Look for the `BindPresets` method in `main.ahk`.
+- The hotkeys are bound globally, so it might interrupt your usual activity. If you find the need to change it, please edit the hotkey bindings in `settings.ini`.
 
 - Microsoft Speech API is capable of [playing only `.wav` files](https://msdn.microsoft.com/en-us/library/jj127898.aspx#Playback). Below are the requirements for the `.wav` file, [as listed by Microsoft](https://msdn.microsoft.com/en-us/library/hh378414.aspx).
   
