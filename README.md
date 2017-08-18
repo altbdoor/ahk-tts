@@ -11,7 +11,7 @@ This is definitely not the first project to do this. Do check out the other simi
 
 ### Usage
 
-![capture](https://cloud.githubusercontent.com/assets/3540471/22048860/bc0dd828-dd6a-11e6-9d23-c4ea4ed486d1.png)
+![capture](https://user-images.githubusercontent.com/3540471/29443871-9ccf3bec-840d-11e7-961e-bfe94ed3516a.png)
 
 | Item   | Description |
 | ------ | --- |
