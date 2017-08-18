@@ -11,9 +11,8 @@ ListLines Off
 #Include tts.ahk
 #Include utility.ahk
 
-AppVersion := 1.5
+AppVersion := 1.6
 AppTitle := "AHK Text to Speech v" . AppVersion
-SettingsFile := A_ScriptDir . "/settings.ini"
 AudioTextHistory := []
 TTSInstance := new TTS()
 
@@ -47,22 +46,30 @@ GUI:
     
     Gui, Add, Button, Default Center w380 h30 x10 y164 gExecuteSubmit, Speak
     
-    Gui, Add, Button, Center w76 h30  x10 y210 gExecuteSavePreset, Preset 1
-    Gui, Add, Button, Center w76 h30  x86 y210 gExecuteSavePreset, Preset 2
-    Gui, Add, Button, Center w76 h30 x162 y210 gExecuteSavePreset, Preset 3
-    Gui, Add, Button, Center w76 h30 x238 y210 gExecuteSavePreset, Preset 4
-    Gui, Add, Button, Center w76 h30 x314 y210 gExecuteSavePreset, Preset 5
+    PresetWidth := 38
+    PresetHeight := 24
+    PresetDimension := "w" . PresetWidth . " h" . PresetHeight
     
-    Gui, Add, Button, Center w76 h30  x10 y240 gExecuteSavePreset, Preset 6
-    Gui, Add, Button, Center w76 h30  x86 y240 gExecuteSavePreset, Preset 7
-    Gui, Add, Button, Center w76 h30 x162 y240 gExecuteSavePreset, Preset 8
-    Gui, Add, Button, Center w76 h30 x238 y240 gExecuteSavePreset, Preset 9
-    Gui, Add, Button, Center w76 h30 x314 y240 gExecuteSavePreset, Preset 0
+    TopFactor := 204
+    
+    Loop, 20 {
+        PresetName := "P" . A_Index
+        ZeroIndex := A_Index - 1
+        
+        Factor := Mod(ZeroIndex, 10)
+        LeftFactor := 10 + (Factor * PresetWidth)
+        
+        If (ZeroIndex > 0 && Factor == 0) {
+            TopFactor += PresetHeight
+        }
+        
+        Gui, Add, Button, Center %PresetDimension% x%LeftFactor% y%TopFactor% gExecuteSavePreset, %PresetName%
+    }
     
     Gui, Add, StatusBar, , Ready
     
     Temp := ""
-    Gui, Show, Center w400, % AppTitle
+    Gui, Show, Center w400, %AppTitle%
     
     GuiControl, Focus, AudioText
     BindHotkeys()
@@ -78,9 +85,8 @@ ExecuteSubmit:
     If (AudioText != "") {
         TTSInstance.SetCurrentAudioOutput(AudioOutput)
         TTSInstance.SetCurrentAudioVoice(AudioVoice)
-        ; TTSInstance.SetCurrentAudioRate(AudioRate)
-        ; TTSInstance.SetCurrentAudioVolume(AudioVolume)
         
+        AudioText := PrepareMP3ToWav(AudioText)
         TTSInstance.Speak(AudioText, AudioRate, AudioVolume, AudioPitch)
         
         If (AudioText != AudioTextHistory[1]) {
@@ -126,9 +132,8 @@ ExecutePlayPreset:
         
         TTSInstance.SetCurrentAudioOutput(AudioOutput)
         TTSInstance.SetCurrentAudioVoice(AudioVoice)
-        ; TTSInstance.SetCurrentAudioRate(PresetAudioRate)
-        ; TTSInstance.SetCurrentAudioVolume(PresetAudioVolume)
         
+        PresetAudioText := PrepareMP3ToWav(PresetAudioText)
         TTSInstance.Speak(PresetAudioText, PresetAudioRate, PresetAudioVolume, PresetAudioPitch)
     }
 Return
@@ -136,7 +141,7 @@ Return
 
 ; WindowMouseMove(wparam, lparam, msg, hwnd)
 WindowMouseMove() {
-    If (A_GuiControl && RegExMatch(A_GuiControl, "^Preset \d+$")) {
+    If (A_GuiControl && RegExMatch(A_GuiControl, "^P\d+$")) {
         CurrentPresetIndex := GetPresetIntegerFromText(A_GuiControl)
         PresetAudioText := ReadSettings("presetAudio", "Text" . CurrentPresetIndex, "")
         
@@ -144,21 +149,9 @@ WindowMouseMove() {
             PresetAudioText := "[No text assigned]"
         }
         
-        SB_SetText(A_GuiControl . ": " . PresetAudioText)
+        PresetText := StrReplace(A_GuiControl, "P", "Preset ")
+        SB_SetText(PresetText . ": " . PresetAudioText)
     }
-}
-
-
-BindHotkeys() {
-    Loop, 10 {
-        ReIndex := Mod(A_Index, 10)
-        HotkeyAssign := ReadSettings("presetHotkey", "Hotkey" . ReIndex, "")
-        
-        If (HotkeyAssign != "") {
-            Hotkey, %HotKeyAssign%, ExecutePlayPreset
-        }
-    }
-    
 }
 
 

@@ -17,21 +17,27 @@ This is definitely not the first project to do this. Do check out the other simi
 | ------ | --- |
 | Output | The output channel for the speech. If you have more than one speaker (or output), it can be a tad useful. |
 | Voice  | The voice for the text. The choices available depends on your operating system. |
-| Volume | The loudness for the speech. It does not affect `.wav` files. |
-| Rate   | The reading speed for the text. It does not affect `.wav` files. |
-| Pitch  | The pitch for the speech. It does not affect `.wav` files. |
-| Text   | The text to convert into speech, or the path to `.wav` file. |
-| Speak  | The button to convert the text to speech, or play the `.wav` file. Alternatively, you can press `ENTER` on the Text field. |
-| Preset 1 - 0 | The button to save the current text, or path to `.wav` file into a preset, which can be called later with a hotkey. |
+| Volume | The loudness for the speech. It does not affect audio files. |
+| Rate   | The reading speed for the text. It does not affect audio files. |
+| Pitch  | The pitch for the speech. It does not affect audio files. |
+| Text   | The text to convert into speech, or the path to audio file. |
+| Speak  | The button to convert the text to speech, or play the audio file. Alternatively, you can press `ENTER` on the Text field. |
+| Preset 1 - 20 | The button to save the current text, or path to audio file into a preset, which can be called later with a hotkey. |
 
-To configure the hotkeys, open up the included `settings.ini` file and edit the keys for `Hotkey1` to `Hotkey0`. The hotkey combination needs to follow [AHK's keylist](https://autohotkey.com/docs/KeyList.htm). As an example, `Ctrl` and `1` is defined by `Ctrl & 1`. The application needs to be restarted after configuring the hotkeys.
+There are more low level controls in the `settings.ini` file.
+
+- **Configure hotkeys** <br>
+    To configure the hotkeys, edit the keys for `Hotkey1` to `Hotkey20`. The hotkey combination needs to follow [AHK's keylist](https://autohotkey.com/docs/KeyList.htm). As an example, `Ctrl` and `1` is defined by `Ctrl & 1`. The application needs to be restarted after configuring the hotkeys.
+
+- **Configure MP3 to WAV converter** <br>
+    Since Microsoft Speech API only supports `.wav`, you can strap an external MP3 to WAV converter of your choice, and this program will attempt to call the converter to convert the MP3 to WAV, before feeding it to Microsoft Speech API. There are a few examples with well-known converters in `MP3ConverterArgs`.
 
 
 ### Limitations
 
-- To allow dynamic binding of hotkey (that is, allow user to change what keypresses to trigger the presets via GUI) is rather complex, and I chose not do it (sorry). But you can do it on the `settings.ini`.
+- To allow users to change hotkeys dynamically via GUI is rather complex. The hotkeys are editable in `settings.ini`, albeit a little troublesome.
 
-- The hotkeys are bound globally, so it might interrupt your usual activity. If you find the need to change it, please edit the hotkey bindings in `settings.ini`.
+- The hotkeys are bound globally, so it might interrupt usual activity on computer. Please edit the hotkeys in `settings.ini` as deemed fit.
 
 - Microsoft Speech API is capable of [playing only `.wav` files](https://msdn.microsoft.com/en-us/library/jj127898.aspx#Playback). Below are the requirements for the `.wav` file, [as listed by Microsoft](https://msdn.microsoft.com/en-us/library/hh378414.aspx).
   
