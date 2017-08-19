@@ -1,2 +1,5 @@
 *.zip
 *.exe
+*.wav
+*.mp3
+_cache

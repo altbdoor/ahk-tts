@@ -71,20 +71,32 @@ class TTS {
     ;     this.Instance.Volume := AudioVolume
     ; }
     
-    Speak(TextContent, AudioRate, AudioVolume, AudioPitch) {
+    PrepareSpeechText(TextContent, AudioRate, AudioVolume, AudioPitch) {
+        Return "<rate absspeed='" . AudioRate . "'/>"
+            . "<volume level='" . AudioVolume . "'/>"
+            . "<pitch absmiddle='" . AudioPitch . "'/>"
+            . TextContent
+    }
+    
+    PrepareAudioText(TextContent) {
+        Return "<?xml version='1.0' encoding='ISO-8859-1'?>"
+            . "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>"
+            . "<audio src='" . TextContent . "'></audio>"
+            . "</speak>"
+    }
+    
+    Speak(TextContent, AudioRate, AudioVolume, AudioPitch, OutputFile := "") {
         this.Instance.Speak("", 0x1|0x2)
         
         If (FileExist(TextContent) && RegExMatch(TextContent, "i)\.wav$")) {
-            TextContent := "<?xml version='1.0' encoding='ISO-8859-1'?>"
-                . "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>"
-                . "<audio src='" . TextContent . "'></audio>"
-                . "</speak>"
+            TextContent := this.PrepareAudioText(TextContent)
+        }
+        Else If (OutputFile != "") {
+            this.SpeakToFile(TextContent, AudioRate, AudioVolume, AudioPitch, OutputFile)
+            TextContent := this.PrepareAudioText(OutputFile)
         }
         Else {
-            TextContent := "<rate absspeed='" . AudioRate . "'/>"
-                . "<volume level='" . AudioVolume . "'/>"
-                . "<pitch absmiddle='" . AudioPitch . "'/>"
-                . TextContent
+            TextContent := this.PrepareSpeechText(TextContent, AudioRate, AudioVolume, AudioPitch)
         }
         
         Try {
@@ -93,5 +105,23 @@ class TTS {
         Catch {
             this.Instance.Speak("error parsing text", 0x1|0x2)
         }
+        
     }
+    
+    SpeakToFile(TextContent, AudioRate, AudioVolume, AudioPitch, OutputFile) {
+        OriginalOutputStream := this.Instance.AudioOutputStream
+        OriginalOutputFormat := this.Instance.AllowAudioOutputFormatChangesOnNextSet
+        this.Instance.AllowAudioOutputFormatChangesOnNextSet := 1
+        
+        SpStream := ComObjCreate("SAPI.SpFileStream")
+        SpStream.Open(OutputFile, 3)
+        this.Instance.AudioOutputStream := SpStream
+        TextContent := this.PrepareSpeechText(TextContent, AudioRate, AudioVolume, AudioPitch)
+        this.Instance.Speak(TextContent, 0x0)
+        SpStream.Close()
+        
+        this.Instance.AudioOutputStream := OriginalOutputStream
+        this.Instance.AllowAudioOutputFormatChangesOnNextSet := OriginalOutputFormat
+    }
+    
 }
