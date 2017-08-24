@@ -1,2 +1,4 @@
 *.zip
 *.exe
+cs/NAudio
+build
