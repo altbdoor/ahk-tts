@@ -1,8 +1,18 @@
 HotkeyCache := {}
 
-GetSettingsFilePath() {
-    Return A_ScriptDir . "/settings.ini"
+SettingsFilePath := A_ScriptDir . "/settings.ini"
+MP3ConverterArgs := ReadSettings("presetMP3", "MP3ConverterArgs", "")
+
+CacheDir := ReadSettings("presetCommon", "CacheDir", "_cache")
+FileCreateDir, %CacheDir%
+
+UseFastInterruptableMode := ReadSettings("presetCommon", "UseFastInterruptableMode", 0)
+FastInterruptablePath := ""
+If (UseFastInterruptableMode == 1) {
+    FastInterruptablePath := CacheDir . "/speech.wav"
 }
+
+; ========================================
 
 JoinArray(Arr, Glue) {
     FinalString := ""
@@ -27,28 +37,26 @@ GetComboBoxChoice(TheList, TheCurrent) {
 }
 
 WriteSettings(Section, Key, Value) {
-    SettingsFile := GetSettingsFilePath()
-    IniWrite, %Value%, %SettingsFile%, %Section%, %Key%
+    global SettingsFilePath
+    IniWrite, %Value%, %SettingsFilePath%, %Section%, %Key%
     Return
 }
 
 ReadSettings(Section, Key, DefaultValue) {
-    SettingsFile := GetSettingsFilePath()
+    global SettingsFilePath
     
     If (DefaultValue == "") {
-        IniRead, Value, %SettingsFile%, %Section%, %Key%, %A_Space%
+        IniRead, Value, %SettingsFilePath%, %Section%, %Key%, %A_Space%
     }
     Else {
-        IniRead, Value, %SettingsFile%, %Section%, %Key%, %DefaultValue%
+        IniRead, Value, %SettingsFilePath%, %Section%, %Key%, %DefaultValue%
     }
     
     Return Value
 }
 
 GetPresetIntegerFromText(PresetText) {
-    PresetIndex := RegExReplace(PresetText, "[^\d]", "")
-    
-    Return PresetIndex
+    Return RegExReplace(PresetText, "[^\d]", "")
 }
 
 GetPresetIntegerFromHotkey(HotkeyText) {
@@ -77,13 +85,11 @@ BindHotkeys() {
 }
 
 PrepareMP3ToWav(MP3Path) {
-    MP3ConverterArgs := ReadSettings("presetMP3", "MP3ConverterArgs", "")
-    WavTempPath := A_Temp . "/ahktts_wav_temp"
+    global CacheDir, MP3ConverterArgs
     
     If (MP3ConverterArgs != "" && FileExist(MP3Path) && RegExMatch(MP3Path, "i)\.mp3$")) {
-        FileCreateDir, %WavTempPath%
         MP3Hash := FileMD5(MP3Path)
-        WavPath := WavTempPath . "/" . MP3Hash . ".wav"
+        WavPath := CacheDir . "/" . MP3Hash . ".wav"
         
         If (FileExist(WavPath)) {
             MP3Path := WavPath
@@ -104,6 +110,11 @@ PrepareMP3ToWav(MP3Path) {
     }
     
     Return MP3Path
+}
+
+GetFastInterruptablePath() {
+    global FastInterruptablePath
+    Return FastInterruptablePath
 }
 
 FileMD5( sFile="", cSz=4 ) {  ; by SKAN www.autohotkey.com/community/viewtopic.php?t=64211

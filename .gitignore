@@ -2,3 +2,6 @@
 *.exe
 cs/NAudio
 build
+*.wav
+*.mp3
+_cache

@@ -1,7 +1,7 @@
 ahk-tts
 ===
 
-A simple, but clunky interface which converts text to speech or plays `.wav` sound files with [Microsoft Speech API](https://msdn.microsoft.com/en-us/library/ms723602%28v=vs.85%29.aspx) via [AutoHotkey](https://autohotkey.com/).
+A simple, but clunky interface which converts text to speech or plays WAV sound files with [Microsoft Speech API](https://msdn.microsoft.com/en-us/library/ms723602%28v=vs.85%29.aspx) via [AutoHotkey](https://autohotkey.com/).
 
 This is definitely not the first project to do this. Do check out the other similar (and more complete) AHK projects.
 
@@ -11,7 +11,10 @@ This is definitely not the first project to do this. Do check out the other simi
 
 ### Usage
 
-![capture](https://cloud.githubusercontent.com/assets/3540471/22048860/bc0dd828-dd6a-11e6-9d23-c4ea4ed486d1.png)
+![capture](https://user-images.githubusercontent.com/3540471/29443871-9ccf3bec-840d-11e7-961e-bfe94ed3516a.png)
+
+
+#### GUI settings
 
 | Item   | Description |
 | ------ | --- |
@@ -24,13 +27,24 @@ This is definitely not the first project to do this. Do check out the other simi
 | Speak  | The button to convert the text to speech, or play the audio file. Alternatively, you can press `ENTER` on the Text field. |
 | Preset 1 - 20 | The button to save the current text, or path to audio file into a preset, which can be called later with a hotkey. |
 
-There are more low level controls in the `settings.ini` file.
 
-- **Configure hotkeys** <br>
-    To configure the hotkeys, edit the keys for `Hotkey1` to `Hotkey20`. The hotkey combination needs to follow [AHK's keylist](https://autohotkey.com/docs/KeyList.htm). As an example, `Ctrl` and `1` is defined by `Ctrl & 1`. The application needs to be restarted after configuring the hotkeys.
+#### Advanced settings
 
-- **Configure MP3 to WAV converter** <br>
-    Since Microsoft Speech API only supports `.wav`, you can strap an external MP3 to WAV converter of your choice, and this program will attempt to call the converter to convert the MP3 to WAV, before feeding it to Microsoft Speech API. There are a few examples with well-known converters in `MP3ConverterArgs`.
+There are more advanced configurations in the `settings.ini` file. The application needs to be restarted in order to take in the setting changes here.
+
+- **CacheDir** (default: _cache) <br>
+    A relative or absolute path to a directory, which will be used for caching purposes. This directory will be used heavily if `UseFastInterruptableMode` or `MP3ConverterArgs` is enabled.
+
+- **UseFastInterruptableMode** (default: 0) <br>
+    By default, Microsoft Speech API directly plays the speech audio to the desired output channel. However, attempting to interrupt an already playing speech, near the end of the speech, will result in an awkward delay.
+    
+    If this mode is enabled, it will turn the speech audio into a WAV file first, before feeding it back to Microsoft Speech API. The delay will be less noticable.
+
+- **Hotkey1** to **Hotkey20** <br>
+    Only `Hotkey1` to `Hotkey10` are configured, with `Ctrl` + `1` to `Ctrl` + `0` respectively. These are the hotkey combinations which will trigger a playback of Preset 1 to 20. The hotkey combination needs to follow [AHK's keylist](https://autohotkey.com/docs/KeyList.htm). As an example, `Ctrl` and `1` is defined by `Ctrl & 1`.
+
+- **MP3ConverterArgs** (default: None) <br>
+    Since Microsoft Speech API only supports WAV files, you can strap an external MP3 to WAV converter of your choice, and this program will attempt to call the converter to convert the MP3 to WAV, before feeding it to Microsoft Speech API. There are a few examples with well-known converters in `MP3ConverterArgs`.
 
 
 ### Limitations
@@ -39,18 +53,23 @@ There are more low level controls in the `settings.ini` file.
 
 - The hotkeys are bound globally, so it might interrupt usual activity on computer. Please edit the hotkeys in `settings.ini` as deemed fit.
 
-- Microsoft Speech API is capable of [playing only `.wav` files](https://msdn.microsoft.com/en-us/library/jj127898.aspx#Playback). Below are the requirements for the `.wav` file, [as listed by Microsoft](https://msdn.microsoft.com/en-us/library/hh378414.aspx).
-  
-  > The audio element supports WMA files and .WAV files containing RIFF headers and encoded with the following parameters.
-  > 
-  > - **Format**, PCM, a-law, u-law
-  > - **Bit-depth**, 8 bits, 16 bits
-  > - **Channels**, Mono only
-  > - **Sampling Rate**, All sampling rates supported.
-  
-  If you use [ffmpeg](https://ffmpeg.org/), [here's a snippet](http://stackoverflow.com/questions/13358287/how-to-convert-any-mp3-file-to-wav-16khz-mono-16bit) to convert MP3 to WAV with volume adjustment.
-  
-  `ffmpeg -i "input.mp3" -acodec pcm_s16le -ac 1 -ar 16000 -af "volume=0.4" "output.wav"`
+- Microsoft Speech API is capable of [playing only WAV files](https://msdn.microsoft.com/en-us/library/jj127898.aspx#Playback). Below are the requirements for the WAV file, [as listed by Microsoft](https://msdn.microsoft.com/en-us/library/hh378414.aspx).
+    
+    > The audio element supports WMA files and .WAV files containing RIFF headers and encoded with the following parameters.
+    > 
+    > - **Format**, PCM, a-law, u-law
+    > - **Bit-depth**, 8 bits, 16 bits
+    > - **Channels**, Mono only
+    > - **Sampling Rate**, All sampling rates supported.
+    
+    If you use [ffmpeg](https://ffmpeg.org/), [here's a snippet](http://stackoverflow.com/questions/13358287/how-to-convert-any-mp3-file-to-wav-16khz-mono-16bit) to convert MP3 to WAV with volume adjustment.
+    
+    `ffmpeg -i "input.mp3" -acodec pcm_s16le -ac 1 -ar 16000 -af "volume=0.4" "output.wav"`
+
+
+### Downloads
+
+[See Releases](//github.com/altbdoor/ahk-tts/releases)
 
 
 ### Why

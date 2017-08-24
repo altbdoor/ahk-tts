@@ -1,18 +1,17 @@
 #NoEnv
-SendMode Input
-SetWorkingDir %A_ScriptDir%
-
-#SingleInstance force
 #NoTrayIcon
-
 #KeyHistory 0
-ListLines Off
+#SingleInstance force
+
+SetWorkingDir, %A_ScriptDir%
+ListLines, Off
 
 #Include tts.ahk
 #Include utility.ahk
 
-AppVersion := 1.6
+AppVersion := 1.7
 AppTitle := "AHK Text to Speech v" . AppVersion
+
 AudioTextHistory := []
 TTSInstance := new TTS()
 
@@ -86,8 +85,11 @@ ExecuteSubmit:
         TTSInstance.SetCurrentAudioOutput(AudioOutput)
         TTSInstance.SetCurrentAudioVoice(AudioVoice)
         
-        AudioText := PrepareMP3ToWav(AudioText)
-        TTSInstance.Speak(AudioText, AudioRate, AudioVolume, AudioPitch)
+        TTSInstance.Speak(PrepareMP3ToWav(AudioText)
+            , AudioRate
+            , AudioVolume
+            , AudioPitch
+            , GetFastInterruptablePath())
         
         If (AudioText != AudioTextHistory[1]) {
             AudioTextHistory.InsertAt(1, AudioText)
@@ -133,8 +135,11 @@ ExecutePlayPreset:
         TTSInstance.SetCurrentAudioOutput(AudioOutput)
         TTSInstance.SetCurrentAudioVoice(AudioVoice)
         
-        PresetAudioText := PrepareMP3ToWav(PresetAudioText)
-        TTSInstance.Speak(PresetAudioText, PresetAudioRate, PresetAudioVolume, PresetAudioPitch)
+        TTSInstance.Speak(PrepareMP3ToWav(PresetAudioText)
+            , PresetAudioRate
+            , PresetAudioVolume
+            , PresetAudioPitch
+            , GetFastInterruptablePath())
     }
 Return
 
