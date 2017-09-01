@@ -144,10 +144,10 @@ ExecutePlayPreset:
         
         SendAudioTextToWatcher(AudioOutput
             , AudioVoice
-            , AudioText
-            , AudioRate
-            , AudioVolume
-            , AudioPitch)
+            , PresetAudioText
+            , PresetAudioRate
+            , PresetAudioVolume
+            , PresetAudioPitch)
         
     }
 Return
