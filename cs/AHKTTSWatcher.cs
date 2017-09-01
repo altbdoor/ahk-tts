@@ -5,7 +5,7 @@ using NAudio;
 using NAudio.Wave;
 
 
-public class FileWatcher
+public class AHKTTSWatcher
 {
     static WaveOut waveOutDevice;
     static AudioFileReader audioFileReader;
@@ -51,13 +51,13 @@ public class FileWatcher
             }
         } while (retry > 0);
         
-        string[] textArgs = readText.Trim().Split(',');
+        string[] textArgs = readText.Trim().Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
         if (textArgs.Length == 3) {
             waveOutDevice = new WaveOut();
             
-            string deviceName = textArgs[0];
-            string audioPath = textArgs[1];
-            float audioVolume = float.Parse(textArgs[2], System.Globalization.CultureInfo.InvariantCulture);
+            string deviceName = textArgs[0].Trim();
+            string audioPath = textArgs[1].Trim();
+            float audioVolume = float.Parse(textArgs[2].Trim(), System.Globalization.CultureInfo.InvariantCulture);
             
             for (int i=0; i<WaveOut.DeviceCount; i++)
             {

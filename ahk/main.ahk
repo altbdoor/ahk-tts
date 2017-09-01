@@ -3,17 +3,23 @@
 #KeyHistory 0
 #SingleInstance force
 
+DetectHiddenWindows, On
 SetWorkingDir, %A_ScriptDir%
 ListLines, Off
 
 #Include tts.ahk
 #Include utility.ahk
 
-AppVersion := 1.7
+AppVersion := 1.8
 AppTitle := "AHK Text to Speech v" . AppVersion
+WatcherExeName := "AHKTTSWatcher.exe"
 
 AudioTextHistory := []
 TTSInstance := new TTS()
+
+CacheDir := ReadSettings("presetCommon", "CacheDir", "_cache")
+FileCreateDir, %CacheDir%
+
 
 GUI:
     Gui, Font, s10, Segoe UI
@@ -74,6 +80,12 @@ GUI:
     BindHotkeys()
     
     OnMessage(0x200, "WindowMouseMove")
+    
+    FileWatcherArg := """" . WatcherExeName . """ """ . CacheDir . "/bridge.txt"""
+    WinClose, ahk_exe %WatcherExeName%
+    WinWaitClose, ahk_exe %WatcherExeName%
+    Run, %FileWatcherArg%, , Hide, FileWatcherPID
+    
 Return
 
 ; ========================================
@@ -82,14 +94,12 @@ ExecuteSubmit:
     Gui, Submit, NoHide
     
     If (AudioText != "") {
-        TTSInstance.SetCurrentAudioOutput(AudioOutput)
-        TTSInstance.SetCurrentAudioVoice(AudioVoice)
-        
-        TTSInstance.Speak(PrepareMP3ToWav(AudioText)
+        SendAudioTextToWatcher(AudioOutput
+            , AudioVoice
+            , AudioText
             , AudioRate
             , AudioVolume
-            , AudioPitch
-            , GetFastInterruptablePath())
+            , AudioPitch)
         
         If (AudioText != AudioTextHistory[1]) {
             AudioTextHistory.InsertAt(1, AudioText)
@@ -132,14 +142,13 @@ ExecutePlayPreset:
         
         Gui, Submit, NoHide
         
-        TTSInstance.SetCurrentAudioOutput(AudioOutput)
-        TTSInstance.SetCurrentAudioVoice(AudioVoice)
+        SendAudioTextToWatcher(AudioOutput
+            , AudioVoice
+            , AudioText
+            , AudioRate
+            , AudioVolume
+            , AudioPitch)
         
-        TTSInstance.Speak(PrepareMP3ToWav(PresetAudioText)
-            , PresetAudioRate
-            , PresetAudioVolume
-            , PresetAudioPitch
-            , GetFastInterruptablePath())
     }
 Return
 
@@ -160,11 +169,51 @@ WindowMouseMove() {
 }
 
 
+SendAudioTextToWatcher(AudioOutput, AudioVoice, AudioText, AudioRate, AudioVolume, AudioPitch) {
+    global CacheDir, TTSInstance
+    
+    If (FileExist(AudioText) && RegExMatch(AudioText, "i)\.(mp3|wav)$")) {
+        AudioVolume := AudioVolume / 100
+    }
+    Else {
+        DeleteOldSpeechGlob := CacheDir . "\*.wav"
+        FileDelete, %DeleteOldSpeechGlob%
+        
+        SpeechPath := CacheDir . "/" . A_TickCount . ".wav"
+        
+        TTSInstance.SetCurrentAudioVoice(AudioVoice)
+        TTSInstance.SpeakToFile(AudioText
+            , AudioRate
+            , AudioVolume
+            , AudioPitch
+            , SpeechPath)
+        
+        AudioText := SpeechPath
+        AudioVolume := "1.0"
+    }
+    
+    FilePointer := FileOpen(CacheDir . "/bridge.txt", "w")
+    
+    If (FileExist(AudioText)) {
+        FilePointer.WriteLine(AudioOutput)
+        FilePointer.WriteLine(AudioText)
+        FilePointer.WriteLine(AudioVolume)
+    }
+    
+    FilePointer.Close()
+    
+}
+
+
 #If WinActive(AppTitle)
 ^BS:: Send, ^+{left}{delete}
 #If
 
 
+OnExit, GuiClose
+
 GuiClose:
+    WinClose, ahk_exe %WatcherExeName%
+    WinWaitClose, ahk_exe %WatcherExeName%
     ExitApp
 Return

@@ -85,15 +85,11 @@ class TTS {
             . "</speak>"
     }
     
-    Speak(TextContent, AudioRate, AudioVolume, AudioPitch, OutputFile := "") {
+    Speak(TextContent, AudioRate, AudioVolume, AudioPitch) {
         this.Instance.Speak("", 0x1|0x2)
         
         If (FileExist(TextContent) && RegExMatch(TextContent, "i)\.wav$")) {
             TextContent := this.PrepareAudioText(TextContent)
-        }
-        Else If (OutputFile != "") {
-            this.SpeakToFile(TextContent, AudioRate, AudioVolume, AudioPitch, OutputFile)
-            TextContent := this.PrepareAudioText(OutputFile)
         }
         Else {
             TextContent := this.PrepareSpeechText(TextContent, AudioRate, AudioVolume, AudioPitch)
